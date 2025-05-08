@@ -1,6 +1,6 @@
 # User Management API (FastAPI + PostgreSQL)
 
-## 🚀 Tech Stack
+##  Tech Stack
 - FastAPI
 - PostgreSQL
 - SQLAlchemy
@@ -8,7 +8,7 @@
 - Bcrypt
 - Pydantic
 
-## ⚙️ Setup Instructions
+##  Setup Instructions
 
 1. Create a PostgreSQL DB called `user_db`
 2. Set your DB credentials in `.env`
@@ -21,7 +21,7 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-## 📌 API Endpoints
+##  API Endpoints
 
 | Method | Endpoint         | Description         |
 |--------|------------------|---------------------|
