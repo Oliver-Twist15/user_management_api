@@ -23,9 +23,17 @@ uvicorn app.main:app --reload
 
 ##  API Endpoints
 
+
 | Method | Endpoint         | Description         |
 |--------|------------------|---------------------|
 | POST   | `/register`      | Register a new user |
 | POST   | `/login`         | Login & get token   |
 | GET    | `/profile/{id}`  | Get user profile    |
 | PUT    | `/profile/{id}`  | Update user profile |
+
+
+---
+
+This `README.md` file includes all necessary details about the project, including setup instructions, API endpoints, and additional details like challenges and the license. You can simply copy this text into your `README.md` file and proceed with the project submission.
+
+
