@@ -1,6 +1,6 @@
 # User Management API (FastAPI + PostgreSQL)
 
-## 🛠 Tech Stack
+##  Tech Stack
 - FastAPI  
 - PostgreSQL  
 - SQLAlchemy  
@@ -10,7 +10,7 @@
 
 ---
 
-## ⚙️ Setup Instructions
+##  Setup Instructions
 
 1. Create a PostgreSQL database named `user_db`.
 2. Create a `.env` file in the root directory with the following content:
