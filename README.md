@@ -34,6 +34,6 @@ uvicorn app.main:app --reload
 
 ---
 
-This `README.md` file includes all necessary details about the project, including setup instructions, API endpoints, and additional details like challenges . 
+
 
 
