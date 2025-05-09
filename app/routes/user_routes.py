@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Form
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from app import schemas, models, auth
@@ -12,6 +12,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 router = APIRouter()
 
+# Dependency to get database session
 def get_db():
     db = SessionLocal()
     try:
@@ -19,41 +20,70 @@ def get_db():
     finally:
         db.close()
 
+# Register route
 @router.post("/register", response_model=schemas.UserOut)
-def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = db.query(models.User).filter(models.User.email == user.email).first()
+def register(
+    name: str = Form(...),
+    email: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    db_user = db.query(models.User).filter(models.User.email == email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    hashed_password = auth.hash_password(user.password)
-    new_user = models.User(name=user.name, email=user.email, password=hashed_password)
+    hashed_password = auth.hash_password(password)
+    new_user = models.User(name=name, email=email, password=hashed_password)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
     return new_user
 
+# Login route
 @router.post("/login")
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.email == form_data.username).first()
-    if not user or not auth.verify_password(form_data.password, user.password):
+def login(
+    username: str = Form(...),  # 👈 change to username
+    password: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    user = db.query(models.User).filter(models.User.email == username).first()  # 👈 use username as email
+    if not user or not auth.verify_password(password, user.password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     token = auth.create_access_token({"sub": user.email})
-    return {"access_token": token, "token_type": "bearer"}
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user_id": user.id,
+        "user_name": user.name
+    }
 
+# Get user profile route
 @router.get("/profile/{id}", response_model=schemas.UserOut)
-def get_profile(id: int, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
+def get_profile(
+    id: int,
+    db: Session = Depends(get_db),
+    token: str = Depends(oauth2_scheme)
+):
     user = db.query(models.User).filter(models.User.id == id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
+# Update user profile route
 @router.put("/profile/{id}", response_model=schemas.UserOut)
-def update_profile(id: int, user_update: schemas.UserCreate, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
+def update_profile(
+    id: int,
+    name: str = Form(...),
+    email: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db),
+    token: str = Depends(oauth2_scheme)
+):
     user = db.query(models.User).filter(models.User.id == id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    user.name = user_update.name
-    user.email = user_update.email
-    user.password = auth.hash_password(user_update.password)
+    user.name = name
+    user.email = email
+    user.password = auth.hash_password(password)
     db.commit()
     db.refresh(user)
     return user
